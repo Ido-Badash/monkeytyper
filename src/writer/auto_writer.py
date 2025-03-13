@@ -1,23 +1,25 @@
 import logging
-from utils import SafePath
+import time
 
-class MTAutoWriter:
-    def __init__(self):
-        self.data_folder = SafePath("data")
-        self.mt_sentence_txt = self.data_folder.path("mt_sentence.txt", as_string=True)
+import pyperclip as pyclip
+from pynput.keyboard import Controller
 
-        with open (self.mt_sentence_txt, "a") as f:
-            f.write("Hello, World!\n")
-            f.write("This is a test sentence.\n")
-        with open(self.mt_sentence_txt, "r") as f:
-            self.mt_sentence = f.readlines()[-1].strip()
-            logging.info(f'Read sentence: "{self.mt_sentence}"')
-
-    def flush_sentence(self):
-        """Flushs the sentences file"""
-        with open(self.mt_sentence_txt, "w") as f:
-            f.write("")
-        logging.info("Flushed the sentences file")
+class AutoWriter:
+    def __init__(self, sentence: str, sleep_duration: float = 0.05, copy_sentence: bool = False):
+        self.sentence = sentence
+        self.sleep_duration = sleep_duration
+        self.copy_sentence = copy_sentence
+        if self.copy_sentence:
+            pyclip.copy(self.sentence)
+        self.user_keyb = Controller()
 
     def run(self):
-        pass
+        """Runs the writer"""
+        logging.info(f"Writing sentence: {self.sentence}")
+        try:
+            for char in self.sentence:
+                self.user_keyb.type(char)
+                time.sleep(self.sleep_duration)
+        except KeyboardInterrupt as keyb_interrupt:
+            logging.info(f"Interrupted the writer: {keyb_interrupt}")
+        logging.info("Finished writing the sentence")

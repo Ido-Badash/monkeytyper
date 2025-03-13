@@ -1,7 +1,13 @@
 import sys
 import logging
 import traceback
-from writer import MTAutoWriter
+from writer import AutoWriter
+
+# ----------------------- Test play ground -----------------------
+# 
+# 
+#
+# ----------------------------------------------------------------
 
 def catch_it(func):
     def wrapper(*args, **kwargs):
@@ -23,7 +29,7 @@ def main():
     
     logging.info("Program started")
 
-    writer = MTAutoWriter()
+    writer = AutoWriter("BDOSUUU ahh $%^& we out baby")
     writer.run()
 
     logging.info("Program ended")

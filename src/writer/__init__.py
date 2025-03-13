@@ -1,3 +1,3 @@
-from .auto_writer import MTAutoWriter
+from .auto_writer import AutoWriter
 
-__all__ = ['MTAutoWriter']
+__all__ = ['AutoWriter']
