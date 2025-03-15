@@ -10,3 +10,7 @@ class TabChecker:
             bool: True if the tab is open False otherwise
         """
         return True
+    
+    def open_tab(self):
+        """opens the tab"""
+        pass

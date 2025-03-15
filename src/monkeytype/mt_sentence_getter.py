@@ -1,4 +1,4 @@
-from .sentence_getter import SentenceGetter
+from web_scrap import SentenceGetter
 
 class MTsentenceGetter(SentenceGetter):
     def __init__(self):

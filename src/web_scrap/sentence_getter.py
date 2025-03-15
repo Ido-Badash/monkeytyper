@@ -23,8 +23,8 @@ class SentenceGetter:
                 logging.error(f"An error occurred: {e}")
                 return None
         else:
-            logging.error("Tab is not open")
-            return None
+            self.mt_tab_checker.open_tab()
+            return self.get_sentence()
     
     def put_into_file(self, file_path: str) -> bool:
         """puts the sentence into a file
