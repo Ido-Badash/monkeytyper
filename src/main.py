@@ -3,8 +3,7 @@ import logging
 import traceback
 import customtkinter as ctk
 from writer import AutoWriter
-from launcher import launch_mt
-from html_handle import HtmlHandler
+from web_scrap import MTSentenceGetter
 from utils import *
 
 # ----------------------- Test play ground -----------------------
@@ -32,25 +31,20 @@ def main():
         datefmt="%H:%M:%S")
     
     logging.info("Program started")
-    data_folder = SafePath("data")
-
-    # --- html handler ---
-    # takes the html of the monkeytype website and puts it in a file in the data folder
-    url = "https://www.monkeytype.com/"
-    html_file = data_folder.path("html_snapshot.html")
-    html_handler = HtmlHandler(url, html_file)   
 
     # --- sentence getter ---
     # gets the sentence from the html file and puts it in a file in the data folder
-    sentence = ""
-    def fetch_sentence(auto_writer: AutoWriter):
-        sentence = html_handler.get_mt_sentence()
-        auto_writer.set_sentence(sentence)
-        with open(data_folder.path("sentence.txt"), "w", encoding="utf-8") as f:
-            f.write(sentence)
+    CHROME_DRIVER_PATH = "C:/Users/idoba/.wdm/drivers/chromedriver/win64/134.0.6998.45/chromedriver.exe"
+    BRAVE_EXE_PATH = "C:/Users/idoba/AppData/Local/BraveSoftware/Brave-Browser/Application/brave.exe"
+    mt_sentence_getter = MTSentenceGetter(BRAVE_EXE_PATH, CHROME_DRIVER_PATH)
+
+    def fetch_sentence(writer: AutoWriter, sentence_getter: MTSentenceGetter):
+        sentence = sentence_getter.get_sentence()
+        writer.set_sentence(sentence)
+        return sentence
 
     # --- writer ---
-    writer = AutoWriter(sentence, copy_sentence=True)
+    writer = AutoWriter(copy_sentence=True)
 
     # --- customtkinter ---
     ctk.set_appearance_mode("dark")  # Modes: "System" (standard), "Dark", "Light"
@@ -82,13 +76,13 @@ def main():
     right_button_frame.pack(side="right", padx=10, pady=5, expand=True, fill='both')
 
     # launch monkeytype button
-    launch_mt_func = lambda: launch_mt()
+    launch_mt_func = lambda: mt_sentence_getter.open_monkeytype()
     launch_mt_b = ctk.CTkButton(left_button_frame, text="Launch Monkeytype", **buttons_specs, command=launch_mt_func,
                                 text_color="#e2b314", fg_color="#21130d", hover_color="#29160e")
     launch_mt_b.pack(**buttons_pack_specs)
 
     # fetch sentence button
-    fetch_sentence_func = lambda: fetch_sentence(writer)
+    fetch_sentence_func = lambda: fetch_sentence(writer, mt_sentence_getter)
     fetch_sentence_b = ctk.CTkButton(left_button_frame, text="Fetch Sentence", **buttons_specs,
                                      fg_color="#27319c", command=fetch_sentence_func)
     fetch_sentence_b.pack(**buttons_pack_specs)

@@ -63,15 +63,4 @@ class HtmlHandler:
             return False
         return True
     
-    def get_mt_sentence(self) -> str | None:
-        """Get a javascript variable from the html file"""
-        try:
-            # makes sure the file is up to date
-            html_text = self.get_html_file()
-            self.put_in_file(html_text)
-
-            pass
-        except Exception as e:
-            logging.error(f"Couldn't get the sentence: {e}")
-            return None
     

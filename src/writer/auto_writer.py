@@ -6,7 +6,7 @@ import pyperclip as pyclip
 from pynput.keyboard import Controller
 
 class AutoWriter:
-    def __init__(self, sentence: str, sleep_duration: float = 0.025, copy_sentence: bool = False):
+    def __init__(self, sentence: str = "", sleep_duration: float = 0.025, copy_sentence: bool = False):
         self.sentence = sentence
         self.sleep_duration = sleep_duration
         self.copy_sentence = copy_sentence

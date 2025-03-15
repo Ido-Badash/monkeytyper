@@ -1,3 +1,3 @@
-from .tab_checker import TabChecker
+from .get_mt_sentence import MTSentenceGetter
 
-__all__ = ["TabChecker", "HtmlStructure"]
+__all__ = ["MTSentenceGetter"]
