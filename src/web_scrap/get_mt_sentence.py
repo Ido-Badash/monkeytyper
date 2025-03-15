@@ -60,6 +60,7 @@ class MTSentenceGetter:
                     "".join(letter.text for letter in word.find_elements(By.TAG_NAME, "letter"))
                     for word in element.find_elements(By.CLASS_NAME, "word")
                 ])
+                logging.debug(f"Monkeytype sentence: {sentence}")
                 return sentence
             else:
                 logging.error("Wait or driver object is not initialized, make sure to open the monkeytype first.\n\

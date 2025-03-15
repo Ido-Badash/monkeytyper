@@ -22,6 +22,12 @@ def catch_it(func):
             sys.exit(1)
     return wrapper
 
+def update_sentence(writer: AutoWriter, sentence_getter: MTSentenceGetter) -> str | None:
+    """Returns the sentence and updates the writer"""
+    sentence = sentence_getter.get_sentence()
+    writer.set_sentence(sentence)
+    return sentence
+
 @catch_it
 def main():
     # logging config
@@ -37,11 +43,6 @@ def main():
     CHROME_DRIVER_PATH = "C:/Users/idoba/.wdm/drivers/chromedriver/win64/134.0.6998.45/chromedriver.exe"
     BRAVE_EXE_PATH = "C:/Users/idoba/AppData/Local/BraveSoftware/Brave-Browser/Application/brave.exe"
     mt_sentence_getter = MTSentenceGetter(BRAVE_EXE_PATH, CHROME_DRIVER_PATH)
-
-    def fetch_sentence(writer: AutoWriter, sentence_getter: MTSentenceGetter):
-        sentence = sentence_getter.get_sentence()
-        writer.set_sentence(sentence)
-        return sentence
 
     # --- writer ---
     writer = AutoWriter(copy_sentence=True)
@@ -82,10 +83,10 @@ def main():
     launch_mt_b.pack(**buttons_pack_specs)
 
     # fetch sentence button
-    fetch_sentence_func = lambda: fetch_sentence(writer, mt_sentence_getter)
-    fetch_sentence_b = ctk.CTkButton(left_button_frame, text="Fetch Sentence", **buttons_specs,
-                                     fg_color="#27319c", command=fetch_sentence_func)
-    fetch_sentence_b.pack(**buttons_pack_specs)
+    update_sentence_func = lambda: update_sentence(writer, mt_sentence_getter)
+    update_sentence_b = ctk.CTkButton(left_button_frame, text="Fetch Sentence", **buttons_specs,
+                                     fg_color="#27319c", command=update_sentence_func)
+    update_sentence_b.pack(**buttons_pack_specs)
 
     # clear sentence button
     clear_sentence = lambda: writer.clear()
@@ -94,13 +95,13 @@ def main():
     clear_sentence_b.pack(**buttons_pack_specs)
 
     # start writing button
-    start_write = lambda: write_and_disable(writer, 3, start_writing_b, fetch_sentence_b)
+    start_write = lambda: write_and_disable(writer, 3, start_writing_b, update_sentence_b)
     start_writing_b = ctk.CTkButton(right_button_frame, text="Start Writing", **buttons_specs, command=start_write,
                                      fg_color="#27319c")
     start_writing_b.pack(**buttons_pack_specs)
 
     # stop writing button
-    stop_writing_b = ctk.CTkButton(right_button_frame, text="Stop Writing", **buttons_specs, command=writer.stop,
+    stop_writing_b = ctk.CTkButton(right_button_frame, text="Stop Writing", **buttons_specs, command=writer.toggle,
                                    fg_color="#27319c")
     stop_writing_b.pack(**buttons_pack_specs)
 

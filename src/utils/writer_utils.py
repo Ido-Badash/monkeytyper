@@ -1,15 +1,11 @@
-import time
 import customtkinter as ctk
 from writer import AutoWriter
 from .ctk_utils import disable_buttons
 
-
-def timed_write(writer: AutoWriter, sleep_time: float = 3):
-    time.sleep(sleep_time)
-    return writer.write()
-
 def write_and_disable(writer: AutoWriter, sleep_time: float = 3, *buttons: ctk.CTkButton):
-    disable_buttons(*buttons)
-    if timed_write(writer, sleep_time):
+    buttons_are_disable = disable_buttons(*buttons)
+    writer.start_write_after = sleep_time
+    finished_writing = writer.write()
+    if buttons_are_disable and finished_writing:
         for button in buttons:
             button.configure(state="normal")

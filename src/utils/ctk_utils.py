@@ -1,4 +1,5 @@
 import sys
+from typing import Literal
 import customtkinter as ctk
 
 def toggle_button_text(button: ctk.CTkButton, text1: str, text2: str):
@@ -7,9 +8,13 @@ def toggle_button_text(button: ctk.CTkButton, text1: str, text2: str):
     else:
         button.configure(text=text1)
 
-def disable_buttons(*buttons: ctk.CTkButton):
+def disable_buttons(*buttons: ctk.CTkButton) -> Literal[True]:
+    """Disables ctk buttons
+    Returns:
+        True: if finished"""
     for button in buttons:
         button.configure(state="disabled")
+    return True
 
 def exit_program(root):
     root.quit()

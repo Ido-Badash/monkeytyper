@@ -1,20 +1,19 @@
-import logging
-import threading
 import time
-
+import logging
 import pyperclip as pyclip
 from pynput.keyboard import Controller
 
 class AutoWriter:
-    def __init__(self, sentence: str = "", sleep_duration: float = 0.025, copy_sentence: bool = False):
+    """class for auto writing text"""
+    def __init__(self, sentence: str = "", sleep_delay: float = 0.025,
+                 copy_sentence: bool = False, start_write_after: float = 3):
         self.sentence = sentence
-        self.sleep_duration = sleep_duration
+        self.sleep_delay = sleep_delay
         self.copy_sentence = copy_sentence
+        self.start_write_after = start_write_after
         if self.copy_sentence:
             pyclip.copy(self.sentence)
-        self.user_keyb = Controller()
-        self._current_index = 0
-        self._stop_event = threading.Event()
+        self.keyb = Controller()
 
     def set_sentence(self, new_sentence: str):
         """Sets the sentence to a new sentence"""
@@ -27,23 +26,22 @@ class AutoWriter:
         Types out the sentence character by character with a delay.
         
         Returns:
-            bool: True if the entire sentence was typed out, False if stopped before completion.
+            bool: True if the entire sentence was typed out, False if stopped before completion or error.
         """
-        self._stop_event.clear()
-        while self._current_index < len(self.sentence) and not self._stop_event.is_set():
-            self.user_keyb.type(self.sentence[self._current_index])
-            self._current_index += 1
-            time.sleep(self.sleep_duration)
-        
-        finished = self._current_index == len(self.sentence)
-        self._current_index = 0
-        return finished
-
-    def stop(self):
-        """Stops the typing process."""
-        self._stop_event.set()
-        self._current_index = 0
+        time.sleep(self.start_write_after)
+        try:
+            for char in self.split_sentence(self.sentence):
+                self.keyb.type(char)
+                time.sleep(self.sleep_delay)
+            return True
+        except Exception as e:
+            logging.error(f"Keyboard typing error: {e}")
+            return False
 
     def clear(self):
         """Clears the sentence."""
         self.sentence = ""
+
+    def split_sentence(self, sentence: str):
+        """Splits the sentence into characters"""
+        return [char for char in sentence]
