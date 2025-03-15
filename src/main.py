@@ -101,7 +101,7 @@ def main():
     start_writing_b.pack(**buttons_pack_specs)
 
     # stop writing button
-    stop_writing_b = ctk.CTkButton(right_button_frame, text="Stop Writing", **buttons_specs, command=writer.toggle,
+    stop_writing_b = ctk.CTkButton(right_button_frame, text="Stop Writing", **buttons_specs, # command=writer.toggle,
                                    fg_color="#27319c")
     stop_writing_b.pack(**buttons_pack_specs)
 
