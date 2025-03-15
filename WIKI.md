@@ -7,7 +7,7 @@ Welcome to the monkeytyper wiki!
 - 4. Finish the `MTsentenceGetter` class.
 
 # Tasks status:
-- 1. Ongoing
+- 1. Complete
 - 2. Incomplete
 - 3. Incomplete
 - 4. Incomplete

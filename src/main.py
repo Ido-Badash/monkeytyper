@@ -3,8 +3,9 @@ import logging
 import traceback
 import customtkinter as ctk
 from writer import AutoWriter
-from monkeytype import MTsentenceGetter
 from launcher import launch_mt
+from html_handle import HtmlHandler
+from web_scrap import HtmlStructure
 from utils import *
 
 # ----------------------- Test play ground -----------------------
@@ -32,15 +33,19 @@ def main():
         datefmt="%H:%M:%S")
     
     logging.info("Program started")
-
-    # --- data ---
     data_folder = SafePath("data")
-    sentence_file = data_folder.path("sentence.txt", as_string=True)
+
+    # --- html handler ---
+    # takes the html of the monkeytype website and puts it in a file in the data folder
+    url = "https://www.monkeytype.com/"
+    html_file = data_folder.path("html_snapshot.html")
+    html_handler = HtmlHandler(url, html_file)   
 
     # --- sentence getter ---
-    mt_sentence_getter = MTsentenceGetter()
-    sentence = mt_sentence_getter.get_sentence()
-    mt_sentence_getter.put_into_file(sentence_file)
+    # gets the sentence from the html file and puts it in a file in the data folder
+    sentence_struct = HtmlStructure(
+        "div", {"class": "prompt-text"}, "text")
+    sentence = html_handler.get_data_out(sentence_struct)
 
     # --- writer ---
     writer = AutoWriter(sentence, copy_sentence=True)
@@ -65,35 +70,48 @@ def main():
     buttons_pack_specs = {"padx": 5, "pady": 8, "expand": True, "fill": "both"}
 
     # buttons frame
-    button_frame = ctk.CTkFrame(root)
-    button_frame.pack(padx=100, pady=5, expand=True, fill='both')
+    buttons_frame = ctk.CTkFrame(root)
+    buttons_frame.pack(padx=100, pady=5, expand=True, fill='both')
+
+    left_button_frame = ctk.CTkFrame(buttons_frame)
+    left_button_frame.pack(side="left", padx=10, pady=5, expand=True, fill='both')
+
+    right_button_frame = ctk.CTkFrame(buttons_frame)
+    right_button_frame.pack(side="right", padx=10, pady=5, expand=True, fill='both')
 
     # launch monkeytype button
     launch_mt_func = lambda: launch_mt()
-    launch_mt_b = ctk.CTkButton(button_frame, text="Launch Monkeytype", **buttons_specs, command=launch_mt_func,
-                                text_color="#e2b314", fg_color="#21130d")
+    launch_mt_b = ctk.CTkButton(left_button_frame, text="Launch Monkeytype", **buttons_specs, command=launch_mt_func,
+                                text_color="#e2b314", fg_color="#21130d", hover_color="#29160e")
     launch_mt_b.pack(**buttons_pack_specs)
 
     # fetch sentence button
-    fetch_sentence_b = ctk.CTkButton(button_frame, text="Fetch Sentence", **buttons_specs,
-                                     fg_color="#27319c")
+    fetch_sentence_func = lambda: html_handler.get_and_put()
+    fetch_sentence_b = ctk.CTkButton(left_button_frame, text="Fetch Sentence", **buttons_specs,
+                                     fg_color="#27319c", command=fetch_sentence_func)
     fetch_sentence_b.pack(**buttons_pack_specs)
+
+    # clear sentence button
+    clear_sentence = lambda: writer.clear()
+    clear_sentence_b = ctk.CTkButton(left_button_frame, text="Clear Sentence", **buttons_specs, command=clear_sentence,
+                                        fg_color="#27319c")
+    clear_sentence_b.pack(**buttons_pack_specs)
 
     # start writing button
     start_write = lambda: write_and_disable(writer, 3, start_writing_b, fetch_sentence_b)
-    start_writing_b = ctk.CTkButton(button_frame, text="Start Writing", **buttons_specs, command=start_write,
+    start_writing_b = ctk.CTkButton(right_button_frame, text="Start Writing", **buttons_specs, command=start_write,
                                      fg_color="#27319c")
     start_writing_b.pack(**buttons_pack_specs)
 
     # stop writing button
-    stop_writing_b = ctk.CTkButton(button_frame, text="Stop Writing", **buttons_specs, command=writer.stop,
+    stop_writing_b = ctk.CTkButton(right_button_frame, text="Stop Writing", **buttons_specs, command=writer.stop,
                                    fg_color="#27319c")
     stop_writing_b.pack(**buttons_pack_specs)
 
     # exit button
     exit_func = lambda: exit_program(root)
     exit_b = ctk.CTkButton(
-        button_frame, text="Exit", **buttons_specs,
+        right_button_frame, text="Exit", **buttons_specs,
         command=exit_func, fg_color="#27119c")
     exit_b.pack(**buttons_pack_specs)
 
@@ -111,7 +129,8 @@ def main():
         3. Click 'Start Writing' to start writing the sentence.\n
         4. After you clicked 'Start Writing', quickly switch to the Monkeytype tab.\n
         5. The program will start writing the sentence.\n
-        6. Make sure you can click on the `Stop Writing` button to stop the program.\n"""
+        6. While writing, DO NOT click on the keyboard.\n
+        7. If you want to stop the program, click 'Stop Writing'.\n"""
 
     instructions_label = ctk.CTkLabel(instructions_frame, text=instructions_msg, font=ctk.CTkFont(family="Helvetica", size=16))
     instructions_label.pack(padx=5, pady=10, expand=True)
@@ -121,12 +140,13 @@ def main():
     tips_frame.pack(side="right", padx=10, pady=5, expand=True, fill='both')
 
     tips_msg = """Tips:\n\n
-        7. If you want to write another sentence, click 'Fetch Sentence' again.\n
-        8. If you want to write the same sentence again, click 'Start Writing' again.\n
-        9. If you want to stop the program, click 'Stop Writing'.\n
-        10. If you want to exit the program, click 'Exit'.\n
-        11. Do not spam the buttons, it may cause the program to crash.\n
-        12. Make sure you have a good internet connection.\n"""
+        1. Make sure you can click on `Stop Writing` (split the screen).\n
+        2. If you want to write another sentence, click 'Fetch Sentence' again.\n
+        3. If you want to write the same sentence again, click 'Start Writing' again.\n
+        4. If you want to stop the program, click 'Stop Writing'.\n
+        5. If you want to exit the program, click 'Exit'.\n
+        6. Do not spam the buttons, it may cause the program to crash.\n
+        7. Make sure you have a good internet connection.\n"""
 
     tips_label = ctk.CTkLabel(tips_frame, text=tips_msg, font=ctk.CTkFont(family="Helvetica", size=16))
     tips_label.pack(padx=5, pady=10, expand=True)

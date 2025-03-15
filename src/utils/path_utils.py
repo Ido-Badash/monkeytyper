@@ -12,7 +12,7 @@ class SafePath:
         """Set the absolute path of the file"""
         self._abs_path = Path(relative_path)
 
-    def path(self, path: str = "", as_string: bool = False) -> str | Path:
+    def path(self, path: str = "", as_string: bool = True) -> str | Path:
         """
         Get the path in the base folder.
         Raises:

@@ -1,5 +1,3 @@
-# This is a test to get data from html file and put it in a file
-
 import logging
 import requests
 from bs4 import BeautifulSoup
@@ -19,11 +17,14 @@ class HtmlHandler:
         self._path_to_file = new_path_to_file
 
     def get_html_file(self) -> str | None:
-        """Get the html file from the url"""
+        """Get the html file from the url
+        Returns:
+            str | None: The html file if it was gotten successfully, None otherwise
+        """
         try:
-            website_r = requests.get(self._url)
-            website_r.raise_for_status()
-            return website_r.text
+            r = requests.get(self._url)
+            soup = BeautifulSoup(r.text, 'html.parser')
+            return soup.prettify()
         except Exception as e:
             logging.error(f"Coudn't get the html file: {e}")
             return None
@@ -41,6 +42,34 @@ class HtmlHandler:
             return False
         return True
     
-    def find_in_file(self):
-        """Finds data from the html file"""
+    def get_and_put(self) -> bool:
+        """Get the html file from the url and put it in the file"""
+        html_text = self.get_html_file()
+        if html_text is None:
+            return False
+        return self.put_in_file(str(html_text))
+    
+    def wipe_file(self) -> bool:
+        """Wipes the file
+        Returns:
+            bool: True if the file was wiped successfully, False otherwise
+        """
+        try:
+            with open(self._path_to_file, "w", encoding="utf-8") as f:
+                f.write("")
+        except Exception as e:
+            logging.error(f"Couldn't wipe the file: {e}")
+            return False
+        return True
+    
+    def get_mt_sentence(self) -> str | None:
+        """Get the sentence from the monkeytype website
+        Returns:
+            str | None: The sentence if it was gotten successfully, None otherwise
+        """
+        pass
+    
+    def fetch_data(self) -> str | None:
+        """Fetch the data from the website"""
+        self.get_and_put()
         pass

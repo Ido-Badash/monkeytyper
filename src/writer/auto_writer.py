@@ -37,3 +37,7 @@ class AutoWriter:
         """Stops the typing process."""
         self._stop_event.set()
         self._current_index = 0
+
+    def clear(self):
+        """Clears the sentence."""
+        self.sentence = ""
