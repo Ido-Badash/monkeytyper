@@ -5,7 +5,6 @@ import customtkinter as ctk
 from writer import AutoWriter
 from launcher import launch_mt
 from html_handle import HtmlHandler
-from web_scrap import HtmlStructure
 from utils import *
 
 # ----------------------- Test play ground -----------------------
@@ -43,9 +42,12 @@ def main():
 
     # --- sentence getter ---
     # gets the sentence from the html file and puts it in a file in the data folder
-    sentence_struct = HtmlStructure(
-        "div", {"class": "prompt-text"}, "text")
-    sentence = html_handler.get_data_out(sentence_struct)
+    sentence = ""
+    def fetch_sentence(auto_writer: AutoWriter):
+        sentence = html_handler.get_mt_sentence()
+        auto_writer.set_sentence(sentence)
+        with open(data_folder.path("sentence.txt"), "w", encoding="utf-8") as f:
+            f.write(sentence)
 
     # --- writer ---
     writer = AutoWriter(sentence, copy_sentence=True)
@@ -86,7 +88,7 @@ def main():
     launch_mt_b.pack(**buttons_pack_specs)
 
     # fetch sentence button
-    fetch_sentence_func = lambda: html_handler.get_and_put()
+    fetch_sentence_func = lambda: fetch_sentence(writer)
     fetch_sentence_b = ctk.CTkButton(left_button_frame, text="Fetch Sentence", **buttons_specs,
                                      fg_color="#27319c", command=fetch_sentence_func)
     fetch_sentence_b.pack(**buttons_pack_specs)

@@ -16,15 +16,16 @@ class HtmlHandler:
         """Sets the path to file to a new or other file"""
         self._path_to_file = new_path_to_file
 
-    def get_html_file(self) -> str | None:
+    def get_html_file(self, prettify: bool = True) -> str | None:
         """Get the html file from the url
         Returns:
             str | None: The html file if it was gotten successfully, None otherwise
         """
         try:
             r = requests.get(self._url)
-            soup = BeautifulSoup(r.text, 'html.parser')
-            return soup.prettify()
+            r.raise_for_status()
+            soup = BeautifulSoup(r.text, "html.parser")
+            return soup.prettify() if prettify else soup
         except Exception as e:
             logging.error(f"Coudn't get the html file: {e}")
             return None
@@ -63,13 +64,14 @@ class HtmlHandler:
         return True
     
     def get_mt_sentence(self) -> str | None:
-        """Get the sentence from the monkeytype website
-        Returns:
-            str | None: The sentence if it was gotten successfully, None otherwise
-        """
-        pass
+        """Get a javascript variable from the html file"""
+        try:
+            # makes sure the file is up to date
+            html_text = self.get_html_file()
+            self.put_in_file(html_text)
+
+            pass
+        except Exception as e:
+            logging.error(f"Couldn't get the sentence: {e}")
+            return None
     
-    def fetch_data(self) -> str | None:
-        """Fetch the data from the website"""
-        self.get_and_put()
-        pass

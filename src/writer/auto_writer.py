@@ -16,6 +16,12 @@ class AutoWriter:
         self._current_index = 0
         self._stop_event = threading.Event()
 
+    def set_sentence(self, new_sentence: str):
+        """Sets the sentence to a new sentence"""
+        self.sentence = new_sentence
+        if self.copy_sentence:
+            pyclip.copy(self.sentence)
+
     def write(self) -> bool:
         """
         Types out the sentence character by character with a delay.
