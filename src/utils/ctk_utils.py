@@ -1,4 +1,5 @@
 import sys
+import logging
 from typing import Literal
 import customtkinter as ctk
 
@@ -16,7 +17,17 @@ def disable_buttons(*buttons: ctk.CTkButton) -> Literal[True]:
         button.configure(state="disabled")
     return True
 
-def exit_program(root):
-    root.quit()
-    root.destroy()
-    sys.exit(0)
+def exit_program(root: ctk.CTk = None, sys_exit: bool = True, exit_code: int = 0, input_holder: bool = False):
+    """Exits the program"""
+    try:
+        if input_holder:
+            if root:
+                root.destroy()
+            input("Press enter to exit...")
+        else:
+            if root:
+                root.destroy()
+        if sys_exit:
+            sys.exit(exit_code)
+    except Exception as e:
+        logging.error(f"There was an error while trying to exit: {e}")

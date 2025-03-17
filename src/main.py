@@ -1,4 +1,5 @@
 import sys
+import time
 import logging
 import traceback
 import customtkinter as ctk
@@ -22,12 +23,6 @@ def catch_it(func):
             sys.exit(1)
     return wrapper
 
-def update_sentence(writer: AutoWriter, sentence_getter: MTSentenceGetter) -> str | None:
-    """Returns the sentence and updates the writer"""
-    sentence = sentence_getter.get_sentence()
-    writer.set_sentence(sentence)
-    return sentence
-
 @catch_it
 def main():
     # logging config
@@ -38,23 +33,32 @@ def main():
     
     logging.info("Program started")
 
+    # --- colors ---
+    DEEP_BLUE = "#27319c" # used for writer button
+    PALE_BLUE = "#27119c" # used for exit buttons
+    YELLOW = "#e2b314" # used for launch monkeytype button text
+    DARK_BROWN= "#21130d" # used for launch monkeytype button background
+    DARKER_BROWN= "#29160e" # used for launch monkeytype button hover
+    NORMAL_TEXT_COLOR = "#ffffff"
+
     # --- sentence getter ---
     # gets the sentence from the html file and puts it in a file in the data folder
     CHROME_DRIVER_PATH = "C:/Users/idoba/.wdm/drivers/chromedriver/win64/134.0.6998.45/chromedriver.exe"
     BRAVE_EXE_PATH = "C:/Users/idoba/AppData/Local/BraveSoftware/Brave-Browser/Application/brave.exe"
     mt_sentence_getter = MTSentenceGetter(BRAVE_EXE_PATH, CHROME_DRIVER_PATH)
 
-    # --- writer ---
+    # --- writer ---o
+    SPEED_FACTOR = 1.01
     writer = AutoWriter(copy_sentence=True)
 
     # --- customtkinter ---
     ctk.set_appearance_mode("dark")  # Modes: "System" (standard), "Dark", "Light"
     ctk.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue"
-
+    
     root = ctk.CTk()
     root.title("Monkytype Auto Writer")
     user_w, user_h = root.winfo_screenwidth(), root.winfo_screenheight()
-    root.geometry(f"{user_w//2}x{user_h//2}")
+    root.geometry(f"{int(user_w/2.5)}x{int(user_h/2.5)}")
 
     button_font = ctk.CTkFont(family="Helvetica", size=16)
 
@@ -76,41 +80,50 @@ def main():
     right_button_frame = ctk.CTkFrame(buttons_frame)
     right_button_frame.pack(side="right", padx=10, pady=5, expand=True, fill='both')
 
-    # launch monkeytype button
-    launch_mt_func = lambda: mt_sentence_getter.open_monkeytype()
-    launch_mt_b = ctk.CTkButton(left_button_frame, text="Launch Monkeytype", **buttons_specs, command=launch_mt_func,
-                                text_color="#e2b314", fg_color="#21130d", hover_color="#29160e")
-    launch_mt_b.pack(**buttons_pack_specs)
-
     # fetch sentence button
     update_sentence_func = lambda: update_sentence(writer, mt_sentence_getter)
-    update_sentence_b = ctk.CTkButton(left_button_frame, text="Fetch Sentence", **buttons_specs,
-                                     fg_color="#27319c", command=update_sentence_func)
+    update_sentence_b = ctk.CTkButton(right_button_frame, text="Fetch Sentence", **buttons_specs,
+                                     fg_color=PALE_BLUE, text_color=NORMAL_TEXT_COLOR, command=update_sentence_func)
     update_sentence_b.pack(**buttons_pack_specs)
-
-    # clear sentence button
-    clear_sentence = lambda: writer.clear()
-    clear_sentence_b = ctk.CTkButton(left_button_frame, text="Clear Sentence", **buttons_specs, command=clear_sentence,
-                                        fg_color="#27319c")
-    clear_sentence_b.pack(**buttons_pack_specs)
 
     # start writing button
     start_write = lambda: write_and_disable(writer, 3, start_writing_b, update_sentence_b)
     start_writing_b = ctk.CTkButton(right_button_frame, text="Start Writing", **buttons_specs, command=start_write,
-                                     fg_color="#27319c")
+                                     fg_color=PALE_BLUE, text_color=NORMAL_TEXT_COLOR)
     start_writing_b.pack(**buttons_pack_specs)
 
-    # stop writing button
-    stop_writing_b = ctk.CTkButton(right_button_frame, text="Stop Writing", **buttons_specs, command=writer.toggle,
-                                   fg_color="#27319c")
-    stop_writing_b.pack(**buttons_pack_specs)
+    # increase speed button
+    increase_speed_func = lambda: writer.set_base_delay(writer.sleep_delay / SPEED_FACTOR)
+    increase_speed_b = ctk.CTkButton(right_button_frame, text="Increase Speed", **buttons_specs,
+                                        fg_color=PALE_BLUE, text_color=NORMAL_TEXT_COLOR, command=increase_speed_func)
+    increase_speed_b.pack(**buttons_pack_specs)
 
-    # exit button
-    exit_func = lambda: exit_program(root)
-    exit_b = ctk.CTkButton(
-        right_button_frame, text="Exit", **buttons_specs,
-        command=exit_func, fg_color="#27119c")
-    exit_b.pack(**buttons_pack_specs)
+    # decrease speed button
+    decrease_speed_func = lambda: writer.set_base_delay(writer.sleep_delay * SPEED_FACTOR)
+    decrease_speed_b = ctk.CTkButton(right_button_frame, text="Decrease Speed", **buttons_specs,
+                                        fg_color=PALE_BLUE, text_color=NORMAL_TEXT_COLOR, command=decrease_speed_func)
+    decrease_speed_b.pack(**buttons_pack_specs)
+
+    # launch monkeytype button
+    launch_mt_func = lambda: mt_sentence_getter.open_monkeytype()
+    launch_mt_b = ctk.CTkButton(left_button_frame, text="Launch Monkeytype",
+                                font=button_font, width=100, height=90,
+                                command=launch_mt_func, text_color=YELLOW,
+                                fg_color=DARK_BROWN, hover_color=DARKER_BROWN)
+    launch_mt_b.pack(**buttons_pack_specs)
+
+    # exit monkeytype button
+    exit_mt_func = lambda: mt_sentence_getter.close()
+    exit_mt_b = ctk.CTkButton(
+            left_button_frame, text="Exit Monkeytype", font=button_font, width=100, height=5,
+            command=exit_mt_func, fg_color=DEEP_BLUE, text_color=NORMAL_TEXT_COLOR)
+    exit_mt_b.pack(**buttons_pack_specs)
+
+    # exit all button
+    exit_all_b = ctk.CTkButton(
+        left_button_frame, text="Exit all", font=button_font, width=100, height=5,
+        command=root.destroy, fg_color=DEEP_BLUE, text_color=NORMAL_TEXT_COLOR)
+    exit_all_b.pack(**buttons_pack_specs)
 
     # --- Text ---
     text_frame = ctk.CTkFrame(root)
@@ -125,9 +138,7 @@ def main():
         2. Click 'Fetch Sentence' to get the sentence.\n
         3. Click 'Start Writing' to start writing the sentence.\n
         4. After you clicked 'Start Writing', quickly switch to the Monkeytype tab.\n
-        5. The program will start writing the sentence.\n
-        6. While writing, DO NOT click on the keyboard.\n
-        7. If you want to stop the program, click 'Stop Writing'.\n"""
+        5. Avoid pressing buttons while loading (has a hover color).\n"""
 
     instructions_label = ctk.CTkLabel(instructions_frame, text=instructions_msg, font=ctk.CTkFont(family="Helvetica", size=16))
     instructions_label.pack(padx=5, pady=10, expand=True)
@@ -137,13 +148,11 @@ def main():
     tips_frame.pack(side="right", padx=10, pady=5, expand=True, fill='both')
 
     tips_msg = """Tips:\n\n
-        1. Make sure you can click on `Stop Writing` (split the screen).\n
-        2. If you want to write another sentence, click 'Fetch Sentence' again.\n
-        3. If you want to write the same sentence again, click 'Start Writing' again.\n
-        4. If you want to stop the program, click 'Stop Writing'.\n
-        5. If you want to exit the program, click 'Exit'.\n
-        6. Do not spam the buttons, it may cause the program to crash.\n
-        7. Make sure you have a good internet connection.\n"""
+        1. If you want to write another sentence, click 'Fetch Sentence' again.\n
+        2. If you want to write the same sentence again, click 'Start Writing' again.\n
+        3. If you want to exit the program, click 'Exit all'.\n
+        4. Do not spam the buttons, it may cause the program to crash.\n
+        5. Make sure you have a good internet connection.\n"""
 
     tips_label = ctk.CTkLabel(tips_frame, text=tips_msg, font=ctk.CTkFont(family="Helvetica", size=16))
     tips_label.pack(padx=5, pady=10, expand=True)
@@ -153,8 +162,9 @@ def main():
     bottom_space.pack(pady=10)
 
     root.mainloop()
+    time.sleep(1)
     logging.info("Program ended")
-    sys.exit(0) # exit with success
+    exit_program()
 
 if __name__ == "__main__":
     main()

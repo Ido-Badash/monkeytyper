@@ -70,4 +70,17 @@ class MTSentenceGetter:
         except Exception as e:
             logging.error(f"Failed to get sentence: {e}")
             return None
-        
+
+    def close(self, show_error: bool = False):
+        """Closes the driver"""
+        if self.driver:
+            self.driver.quit()
+            self.driver = None
+            self.wait = None
+            logging.info("Driver closed")
+        else:
+            error_msg = "Driver is None, make sure to open the monkeytype first.\nUse the `open_monkeytype` function."
+            if show_error:
+                logging.error(error_msg)
+            else:
+                logging.debug(error_msg)
