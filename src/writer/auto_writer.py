@@ -1,36 +1,28 @@
 import time
 import logging
-import threading
 from typing import Iterable, List
 import pyperclip as pyclip
 from pynput.keyboard import Controller
 
 class AutoWriter:
     """class for auto writing text"""
-    def __init__(self, sentence: str = "", base_delay: float = 0.01,
+    def __init__(self, sentence: str = "", base_delay: float = 0.025,
                  copy_sentence: bool = False, start_write_after: float = 3):
         self.sentence = sentence
         self.base_delay = base_delay
+        self.sleep_delay = base_delay
         self.copy_sentence = copy_sentence
         self.start_write_after = start_write_after
         self._sentence_track = ""
         self._max_chars = 0
         self._max_words = 0
         self.keyb = Controller()
-        if self.copy_sentence:
-            pyclip.copy(self.sentence)
-
+        self._copy_sentence()
 
     def set_sentence(self, new_sentence: str):
         """Sets the sentence to a new sentence"""
         self.sentence = new_sentence
-        if self.copy_sentence:
-            pyclip.copy(self.sentence)
-
-    def set_base_delay(self, new_base_delay: float):
-        """Sets the sleep delay to a new sleep delay"""
-        self.base_delay = new_base_delay
-        logging.debug(f"Sleep delay set to: {self.base_delay}")
+        self._copy_sentence()
 
     def set_max_words(self, max_words: int):
         """Sets a max for the writer to type"""
@@ -39,6 +31,15 @@ class AutoWriter:
     def set_max_chars(self, max_chars: int):
         """Sets a max for the writer to type"""
         self._max_chars = max_chars
+
+    def set_sleep_delay(self, new_sleep_delay: float):
+        """Sets the sleep delay to a new sleep delay"""
+        self.sleep_delay = new_sleep_delay
+        logging.debug(f"Sleep delay set to: {self.sleep_delay}")
+
+    def get_sleep_delay(self) -> float | None:
+        """Returns the sleep_delay"""
+        return self.sleep_delay if self.sleep_delay else None
 
     def write(self) -> bool:
         """
@@ -58,7 +59,7 @@ class AutoWriter:
                     break
 
                 self.keyb.type(char) # types the chars into the keyboard
-                self.sleep_delay = self.base_delay
+                # TODO: add so the sleep speed will be prop to sentence len
                 time.sleep(self.sleep_delay) # time delay between each press
             return True
         except Exception as e:
@@ -94,3 +95,8 @@ class AutoWriter:
     def _max_chars_reached(self) -> bool:
         """Checks if the max characters is reached"""
         return self._check_max_reached(self._max_chars, self._sentence_track, "Max characters reached")
+
+    def _copy_sentence(self):
+        """Checks if copy_sentence is not None and copys to clipboard if not"""
+        if self.copy_sentence:
+            pyclip.copy(self.sentence)

@@ -27,7 +27,7 @@ def catch_it(func):
 def main():
     # logging config
     logging.basicConfig(
-        level=logging.INFO,
+        level=logging.DEBUG,
         format="%(levelname)s - %(message)s",
         datefmt="%H:%M:%S")
     
@@ -48,8 +48,8 @@ def main():
     mt_sentence_getter = MTSentenceGetter(BRAVE_EXE_PATH, CHROME_DRIVER_PATH)
 
     # --- writer ---o
-    SPEED_FACTOR = 1.01
-    writer = AutoWriter(copy_sentence=True)
+    SPEED_FACTOR = 1.5
+    writer = AutoWriter(copy_sentence=True, base_delay=0.012)
 
     # --- customtkinter ---
     ctk.set_appearance_mode("dark")  # Modes: "System" (standard), "Dark", "Light"
@@ -93,13 +93,13 @@ def main():
     start_writing_b.pack(**buttons_pack_specs)
 
     # increase speed button
-    increase_speed_func = lambda: writer.set_base_delay(writer.sleep_delay / SPEED_FACTOR)
+    increase_speed_func = lambda: writer.set_sleep_delay(writer.get_sleep_delay() / SPEED_FACTOR)
     increase_speed_b = ctk.CTkButton(right_button_frame, text="Increase Speed", **buttons_specs,
                                         fg_color=PALE_BLUE, text_color=NORMAL_TEXT_COLOR, command=increase_speed_func)
     increase_speed_b.pack(**buttons_pack_specs)
 
     # decrease speed button
-    decrease_speed_func = lambda: writer.set_base_delay(writer.sleep_delay * SPEED_FACTOR)
+    decrease_speed_func = lambda: writer.set_sleep_delay(writer.get_sleep_delay() * SPEED_FACTOR)
     decrease_speed_b = ctk.CTkButton(right_button_frame, text="Decrease Speed", **buttons_specs,
                                         fg_color=PALE_BLUE, text_color=NORMAL_TEXT_COLOR, command=decrease_speed_func)
     decrease_speed_b.pack(**buttons_pack_specs)
@@ -165,6 +165,3 @@ def main():
     time.sleep(1)
     logging.info("Program ended")
     exit_program()
-
-if __name__ == "__main__":
-    main()
