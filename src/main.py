@@ -24,10 +24,10 @@ def catch_it(func):
     return wrapper
 
 @catch_it
-def main():
+def main(log_level = logging.INFO):
     # logging config
     logging.basicConfig(
-        level=logging.DEBUG,
+        level=log_level,
         format="%(levelname)s - %(message)s",
         datefmt="%H:%M:%S")
     

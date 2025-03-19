@@ -48,7 +48,7 @@ class MTSentenceGetter:
             str: if the fetch went good None otherwise
         """
         try:
-            if self.wait and self.driver:
+            if self.wait and self.driver: # if `open_monkeytype` was used and no exceptions happend
                 # wait until one word is loaded
                 self.wait.until(EC.presence_of_element_located((By.CLASS_NAME, "word")))
 
@@ -56,10 +56,11 @@ class MTSentenceGetter:
                 element = self.wait.until(EC.presence_of_element_located((By.ID, "words")))
 
                 # format the sentence
-                sentence = " ".join([
+                sentence = " ".join(
                     "".join(letter.text for letter in word.find_elements(By.TAG_NAME, "letter"))
                     for word in element.find_elements(By.CLASS_NAME, "word")
-                ])
+                )
+
                 logging.debug(f"Monkeytype sentence: {sentence}")
                 return sentence
             else:

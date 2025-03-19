@@ -18,6 +18,7 @@ class AutoWriter:
         self._max_words = 0
         self.keyb = Controller()
         self._copy_sentence()
+        logging.info(f"Base delay set to: {self.base_delay}")
 
     def set_sentence(self, new_sentence: str):
         """Sets the sentence to a new sentence"""
@@ -35,7 +36,7 @@ class AutoWriter:
     def set_sleep_delay(self, new_sleep_delay: float):
         """Sets the sleep delay to a new sleep delay"""
         self.sleep_delay = new_sleep_delay
-        logging.debug(f"Sleep delay set to: {self.sleep_delay}")
+        logging.info(f"Sleep delay set to: {self.sleep_delay}")
 
     def get_sleep_delay(self) -> float | None:
         """Returns the sleep_delay"""
